@@ -2,14 +2,14 @@
 
 namespace Lumen\Installer\Console;
 
-use ZipArchive;
-use RuntimeException;
 use GuzzleHttp\Client;
-use Symfony\Component\Process\Process;
+use RuntimeException;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputArgument;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
+use Symfony\Component\Process\Process;
+use ZipArchive;
 
 class NewCommand extends Command
 {
@@ -52,16 +52,14 @@ class NewCommand extends Command
         $composer = $this->findComposer();
 
         $commands = [
-            $composer.' install --no-scripts',
+            $composer, 'install', '--no-scripts',
         ];
 
         if ($input->getOption('no-ansi')) {
-            $commands = array_map(function ($value) {
-                return $value.' --no-ansi';
-            }, $commands);
+            $commands[] = '--no-ansi';
         }
 
-        $process = new Process(implode(' && ', $commands), $directory, null, null, null);
+        $process = new Process($commands, $directory, null, null, null);
 
         if ('\\' !== DIRECTORY_SEPARATOR && file_exists('/dev/tty') && is_readable('/dev/tty')) {
             $process->setTty(true);
@@ -72,6 +70,8 @@ class NewCommand extends Command
         });
 
         $output->writeln('<comment>Application ready! Build something amazing.</comment>');
+
+        return 0;
     }
 
     /**
